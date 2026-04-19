@@ -3,10 +3,11 @@ graph TD
     classDef default fill:#2d3436,stroke:#74b9ff,stroke-width:2px,color:#ffffff,font-family:Arial;
     classDef endNode fill:#00b894,stroke:#000000,stroke-width:2px,color:#ffffff;
     
-    A[Data Acquisition] --> B[Data Preprocessing & Cleaning]
-    B --> C[Feature Extraction]
-    C --> D[Model Training & Hyperparameter Tuning]
-    D --> E[Model Evaluation]
+    A[Data Acquisition] --> B[EDA]
+    B --> C[Data Preprocessing]
+    C --> D[Feature Extraction]
+    D --> E[Model Training & Hyperparameter Tuning]
+    E --> F[Model Evaluation]
     
     E -.->|Refine Parameters| D
     E -.->|Adjust Features| C
