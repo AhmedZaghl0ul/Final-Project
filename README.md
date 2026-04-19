@@ -9,9 +9,9 @@ graph TD
     D --> E[Model Training & Hyperparameter Tuning]
     E --> F[Model Evaluation]
     
-    E -.->|Refine Parameters| D
-    E -.->|Adjust Features| C
+    F -.->|Refine Parameters| E
+    F -.->|Adjust Features| D
     
-    E -->|Validation Success| F[Deployment API & Flutter Integration]
+    F -->|Validation Success| G[Deployment API & Flutter Integration]
     
-    class F endNode;
+    class G endNode;
