@@ -1,43 +1,31 @@
 ```mermaid
-graph LR
-    classDef client fill:#0984e3,stroke:#000000,stroke-width:2px,color:#ffffff;
-    classDef api fill:#00b894,stroke:#000000,stroke-width:2px,color:#ffffff;
-    classDef ml fill:#d63031,stroke:#000000,stroke-width:2px,color:#ffffff;
-    classDef database fill:#fdcb6e,stroke:#000000,stroke-width:2px,color:#000000;
+graph TD
+    %% --- Modern Tech Color Palette ---
+    classDef database fill:#2b3440,stroke:#3b82f6,stroke-width:2px,color:#e2e8f0;
+    classDef process fill:#1e293b,stroke:#10b981,stroke-width:2px,color:#e2e8f0,rx:10px,ry:10px;
+    classDef model fill:#312e81,stroke:#8b5cf6,stroke-width:2px,color:#e2e8f0;
+    classDef highlight fill:#7c2d12,stroke:#f59e0b,stroke-width:2px,color:#e2e8f0;
 
-    subgraph Frontend [1. Client Layer - Flutter App]
-        A[Mobile/Web UI]:::client
-        B[Camera / Video Picker]:::client
-        A --> B
+    subgraph Phase 1: Data Preprocessing
+        A[(Raw Videos: EmotiW 2023)]:::database --> B([Label Merging: Binary Classes]):::process
+        B -. "Engaged (0) - Not-Engaged (1)" .-> C([Data Splitting: Train/Val/Test]):::process
     end
 
-    subgraph Backend [2. API Layer - FastAPI/Flask]
-        C[REST Endpoint POST /predict]:::api
-        D[Request Validation & Error Handling]:::api
-        C --> D
+    subgraph Phase 2: Spatiotemporal Feature Extraction
+        C --> D([Extract 30 Frames per Video]):::process
+        D --> E([Detect Facial Landmarks]):::process
+        E --> F(["Calculate Spatial Features"]):::process
+        F --> G(["Aggregate Temporal Features"]):::process
+        G --> H[(Exported Features CSV)]:::database
     end
 
-    subgraph MLEngine [3. ML Core Engine]
-        E[OpenCV: Frame Decoding]:::ml
-        F[MediaPipe: Facial Landmarks Extraction]:::ml
-        G[Feature Engineering: Blink Rate, PERCLOS...]:::ml
-        H[StandardScaler Transform]:::ml
-        I[XGBoost Classifier Model .pkl]:::ml
-        
-        E --> F --> G --> H --> I
+    subgraph Phase 3: Model Architecture
+        H --> I([StandardScaler: Normalization]):::process
+        I --> J{"Classifier"}:::model
+        J --> K(["Isotonic Calibration<br>Probability Scaling"]):::process
     end
 
-    subgraph Storage [4. Storage Layer]
-        J[(Cloud Storage / S3)]:::database
-        K[(Prediction Logs DB)]:::database
+    subgraph Phase 4: Output & Evaluation
+        K --> L([Predict Final Probabilities]):::process
+        L --> M>"Evaluation Metrics"]:::highlight
     end
-
-    %% Connections between layers
-    B -- "Send Video File (HTTP POST)" --> C
-    D -- "Pass Video bytes" --> E
-    I -- "Return JSON {status, confidence}" --> C
-    C -- "Display Result" --> A
-    
-    %% Optional Storage Connections
-    D -. "Save Video (Optional)" .-> J
-    C -. "Log Result" .-> K
