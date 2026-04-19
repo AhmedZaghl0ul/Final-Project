@@ -1,0 +1,30 @@
+```
+graph TD
+    classDef default fill:#2d3436,stroke:#74b9ff,stroke-width:2px,color:#ffffff,font-family:Arial;
+    classDef process fill:#0984e3,stroke:#000000,stroke-width:1px,color:#ffffff;
+    classDef model fill:#d63031,stroke:#000000,stroke-width:1px,color:#ffffff;
+    classDef data fill:#00b894,stroke:#000000,stroke-width:1px,color:#ffffff;
+
+    subgraph Phase 1: Data Preprocessing
+        A[Raw Video Dataset: EmotiW 2023]:::data --> B[Label Merging]:::process
+        B -. "Engaged / Highly-Engaged -> 0\nNot-Engaged / Barely-Engaged -> 1" .-> C[Data Splitting: Train/Val/Test]:::process
+    end
+
+    subgraph Phase 2: Spatiotemporal Feature Extraction
+        C --> D[OpenCV: Extract 30 Frames per Video]:::process
+        D --> E[MediaPipe: Detect Facial Landmarks]:::process
+        E --> F[Calculate Spatial Features per Frame\nEye Aspect Ratio, Mouth Aspect Ratio, Head Pose]:::process
+        F --> G[Aggregate Temporal Features\nMean, Variance & Max over 30 frames]:::process
+        G --> H[Export Features to CSV files]:::data
+    end
+
+    subgraph Phase 3: Model Architecture
+        H --> I[StandardScaler: Feature Normalization]:::process
+        I -. "z = (x - u) / s" .-> J[XGBoost Classifier\nTrees: 300 | Max Depth: 4 | LR: 0.01]:::model
+        J --> K[Isotonic Calibration\nCalibratedClassifierCV]:::model
+    end
+
+    subgraph Phase 4: Output & Evaluation
+        K --> L[Predict Probabilities & Classes]:::process
+        L --> M[Evaluation Metrics\nROC AUC, Confusion Matrix, Accuracy]:::data
+    end
