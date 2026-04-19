@@ -1,17 +1,43 @@
 ```mermaid
-graph TD
-    classDef default fill:#2d3436,stroke:#74b9ff,stroke-width:2px,color:#ffffff,font-family:Arial;
-    classDef endNode fill:#00b894,stroke:#000000,stroke-width:2px,color:#ffffff;
+graph LR
+    classDef client fill:#0984e3,stroke:#000000,stroke-width:2px,color:#ffffff;
+    classDef api fill:#00b894,stroke:#000000,stroke-width:2px,color:#ffffff;
+    classDef ml fill:#d63031,stroke:#000000,stroke-width:2px,color:#ffffff;
+    classDef database fill:#fdcb6e,stroke:#000000,stroke-width:2px,color:#000000;
+
+    subgraph Frontend [1. Client Layer - Flutter App]
+        A[Mobile/Web UI]:::client
+        B[Camera / Video Picker]:::client
+        A --> B
+    end
+
+    subgraph Backend [2. API Layer - FastAPI/Flask]
+        C[REST Endpoint POST /predict]:::api
+        D[Request Validation & Error Handling]:::api
+        C --> D
+    end
+
+    subgraph MLEngine [3. ML Core Engine]
+        E[OpenCV: Frame Decoding]:::ml
+        F[MediaPipe: Facial Landmarks Extraction]:::ml
+        G[Feature Engineering: Blink Rate, PERCLOS...]:::ml
+        H[StandardScaler Transform]:::ml
+        I[XGBoost Classifier Model .pkl]:::ml
+        
+        E --> F --> G --> H --> I
+    end
+
+    subgraph Storage [4. Storage Layer]
+        J[(Cloud Storage / S3)]:::database
+        K[(Prediction Logs DB)]:::database
+    end
+
+    %% Connections between layers
+    B -- "Send Video File (HTTP POST)" --> C
+    D -- "Pass Video bytes" --> E
+    I -- "Return JSON {status, confidence}" --> C
+    C -- "Display Result" --> A
     
-    A[Data Acquisition] --> B[EDA]
-    B --> C[Data Preprocessing]
-    C --> D[Feature Extraction]
-    D --> E[Model Training & Hyperparameter Tuning]
-    E --> F[Model Evaluation]
-    
-    F -.->|Refine Parameters| E
-    F -.->|Adjust Features| D
-    
-    F -->|Validation Success| G[Deployment API & Flutter Integration]
-    
-    class G endNode;
+    %% Optional Storage Connections
+    D -. "Save Video (Optional)" .-> J
+    C -. "Log Result" .-> K
