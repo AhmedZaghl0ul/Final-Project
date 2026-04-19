@@ -12,8 +12,8 @@ graph TD
     end
 
     subgraph Phase 2: Spatiotemporal Feature Extraction
-        C --> D([OpenCV: Extract 30 Frames per Video]):::process
-        D --> E([MediaPipe: Detect Facial Landmarks]):::process
+        C --> D([Extract 30 Frames per Video]):::process
+        D --> E([Detect Facial Landmarks]):::process
         E --> F(["Calculate Spatial Features"]):::process
         F --> G(["Aggregate Temporal Features"]):::process
         G --> H[(Exported Features CSV)]:::database
@@ -21,7 +21,7 @@ graph TD
 
     subgraph Phase 3: Model Architecture
         H --> I([StandardScaler: Normalization]):::process
-        J{"XGBoost Classifier"}:::model
+        I --> J{"Classifier"}:::model
         J --> K(["Isotonic Calibration<br>Probability Scaling"]):::process
     end
 
