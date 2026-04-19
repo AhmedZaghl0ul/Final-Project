@@ -1,30 +1,31 @@
 ```mermaid
 graph TD
-    classDef default fill:#2d3436,stroke:#74b9ff,stroke-width:2px,color:#ffffff,font-family:Arial;
-    classDef process fill:#0984e3,stroke:#000000,stroke-width:1px,color:#ffffff;
-    classDef model fill:#d63031,stroke:#000000,stroke-width:1px,color:#ffffff;
-    classDef data fill:#00b894,stroke:#000000,stroke-width:1px,color:#ffffff;
+    %% --- Modern Tech Color Palette ---
+    classDef database fill:#2b3440,stroke:#3b82f6,stroke-width:2px,color:#e2e8f0;
+    classDef process fill:#1e293b,stroke:#10b981,stroke-width:2px,color:#e2e8f0,rx:10px,ry:10px;
+    classDef model fill:#312e81,stroke:#8b5cf6,stroke-width:2px,color:#e2e8f0;
+    classDef highlight fill:#7c2d12,stroke:#f59e0b,stroke-width:2px,color:#e2e8f0;
 
     subgraph Phase 1: Data Preprocessing
-        A["Raw Video Dataset: EmotiW 2023"]:::data --> B["Label Merging"]:::process
-        B -. "Engaged -> 0<br>Not-Engaged -> 1" .-> C["Data Splitting: Train/Val/Test"]:::process
+        A[(Raw Videos: EmotiW 2023)]:::database --> B([Label Merging: Binary Classes]):::process
+        B -. "Engaged (0) - Not-Engaged (1)" .-> C([Data Splitting: Train/Val/Test]):::process
     end
 
     subgraph Phase 2: Spatiotemporal Feature Extraction
-        C --> D["OpenCV: Extract 30 Frames per Video"]:::process
-        D --> E["MediaPipe: Detect Facial Landmarks"]:::process
-        E --> F["Calculate Spatial Features per Frame<br>Eye Aspect Ratio, Mouth Aspect Ratio, Head Pose"]:::process
-        F --> G["Aggregate Temporal Features<br>Mean, Variance & Max over 30 frames"]:::process
-        G --> H["Export Features to CSV files"]:::data
+        C --> D([OpenCV: Extract 30 Frames per Video]):::process
+        D --> E([MediaPipe: Detect Facial Landmarks]):::process
+        E --> F(["Calculate Spatial Features"]):::process
+        F --> G(["Aggregate Temporal Features"]):::process
+        G --> H[(Exported Features CSV)]:::database
     end
 
     subgraph Phase 3: Model Architecture
-        H --> I["StandardScaler: Feature Normalization"]:::process
-        I -. "z = (x - u) / s" .-> J["XGBoost Classifier<br>Trees: 300 | Max Depth: 4 | LR: 0.01"]:::model
-        J --> K["Isotonic Calibration<br>CalibratedClassifierCV"]:::model
+        H --> I([StandardScaler: Normalization]):::process
+        J{"XGBoost Classifier"}:::model
+        J --> K(["Isotonic Calibration<br>Probability Scaling"]):::process
     end
 
     subgraph Phase 4: Output & Evaluation
-        K --> L["Predict Probabilities & Classes"]:::process
-        L --> M["Evaluation Metrics<br>ROC AUC, Confusion Matrix, Accuracy"]:::data
+        K --> L([Predict Final Probabilities]):::process
+        L --> M>"Evaluation Metrics"]:::highlight
     end
